@@ -93,7 +93,7 @@ export default class TicketmasterService {
     if (cached) return cached
 
     const numericId = tmId.startsWith('tm_') ? tmId.slice(3) : tmId
-    const url = `${BASE_URL}/manifestations/${numericId}?responseGroup=ManifestationDetailDto&idTiers=${TIERS_ID}&codlang=FR&userCountry=FR`
+    const url = `${BASE_URL}/manifestations/idmanif/${numericId}?responseGroup=ManifestationDetailDto&idTiers=${TIERS_ID}&codlang=FR&userCountry=FR&codCoMod=WEB`
     const data = await this.fetchWithCookieRotation<TmEventDetailDto>(url, `getEventDetail:${tmId}`)
 
     TicketmasterCacheService.set(cacheKey, data)

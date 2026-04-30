@@ -8,6 +8,7 @@ export default class CookieRotationService {
   static async rotateCookie(): Promise<boolean> {
     if (this.isRotating) return false
     this.isRotating = true
+    let browser = null
 
     try {
       const browserlessUrl = env.get('BROWSERLESS_URL')
@@ -22,7 +23,6 @@ export default class CookieRotationService {
         ? `${browserlessUrl}?token=${browserlessToken}`
         : browserlessUrl
 
-      // Lazy import to avoid loading puppeteer in environments that don't need it
       const puppeteerExtra = await import('puppeteer-extra')
       const StealthPlugin = await import('puppeteer-extra-plugin-stealth')
 
@@ -30,42 +30,56 @@ export default class CookieRotationService {
       const stealth: any = StealthPlugin.default ?? StealthPlugin
       puppeteer.use(stealth())
 
-      const browser = await puppeteer.connect({ browserWSEndpoint: wsEndpoint } as any)
+      browser = await puppeteer.connect({ browserWSEndpoint: wsEndpoint } as any)
       const page = await browser.newPage()
-
-      let tmptCookie = ''
-
       await page.setRequestInterception(true)
 
-      page.on('request', (req: any) => {
-        const cookieHeader = req.headers()['cookie'] || ''
-        const match = cookieHeader.match(/tmpt=([^;]+)/)
-        if (match) tmptCookie = match[1]
+      let tmptCookie = ''
+      let cookieFound = false
+
+      const requestHandler = (req: any) => {
+        const cookieHeader = req.headers()['cookie'] ?? ''
+        if (cookieHeader.includes('tmpt=') && !cookieFound) {
+          const match = cookieHeader.match(/tmpt=([^;]+)/)
+          if (match) {
+            tmptCookie = match[1]
+            cookieFound = true
+          }
+        }
         req.continue()
-      })
-
-      page.on('response', (res: any) => {
-        const setCookie = res.headers()['set-cookie'] || ''
-        const match = setCookie.match(/tmpt=([^;]+)/)
-        if (match) tmptCookie = match[1]
-      })
-
-      await page.goto('https://www.ticketmaster.fr', {
-        waitUntil: 'networkidle2',
-        timeout: 30000,
-      })
-
-      // TM sets the cookie via JS — wait required
-      await new Promise((resolve) => setTimeout(resolve, 8000))
-
-      page.removeAllListeners()
-
-      if (!tmptCookie) {
-        const cookies = await page.cookies()
-        tmptCookie = cookies.find((c: any) => c.name === 'tmpt')?.value || ''
       }
 
+      const responseHandler = (res: any) => {
+        const setCookie = res.headers()['set-cookie'] ?? ''
+        if (setCookie.includes('tmpt=') && !cookieFound) {
+          const match = setCookie.match(/tmpt=([^;]+)/)
+          if (match) {
+            tmptCookie = match[1]
+            cookieFound = true
+          }
+        }
+      }
+
+      const cookieFoundPromise = new Promise<void>((resolve) => {
+        const check = () => {
+          if (cookieFound) resolve()
+          else setTimeout(check, 100)
+        }
+        check()
+      })
+
+      page.on('request', requestHandler)
+      page.on('response', responseHandler)
+
+      page.goto('https://www.ticketmaster.fr', { timeout: 30000 }).catch(() => {})
+
+      await Promise.race([cookieFoundPromise, new Promise((resolve) => setTimeout(resolve, 8000))])
+
+      page.off('request', requestHandler)
+      page.off('response', responseHandler)
+
       await browser.close()
+      browser = null
 
       if (tmptCookie) {
         TicketmasterService.setTmptCookie(tmptCookie)
@@ -76,6 +90,7 @@ export default class CookieRotationService {
       await DiscordService.notifyRotationFailure('Cookie tmpt introuvable après navigation')
       return false
     } catch (error: any) {
+      if (browser) await browser.close()
       await DiscordService.notifyRotationFailure(error.message ?? 'Erreur inconnue')
       return false
     } finally {
