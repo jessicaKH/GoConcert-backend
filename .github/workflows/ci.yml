@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev, 'feat/**']
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  test:
+    name: Typecheck & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: goconcert
+          POSTGRES_PASSWORD: goconcert_secret
+          POSTGRES_DB: goconcert_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      TZ: UTC
+      NODE_ENV: test
+      HOST: 0.0.0.0
+      PORT: 3334
+      LOG_LEVEL: error
+      APP_KEY: ${{ secrets.APP_KEY }}
+      APP_URL: http://localhost:3334
+      SESSION_DRIVER: memory
+      DATABASE_URL: postgresql://goconcert:goconcert_secret@localhost:5432/goconcert_test
+      COMMISSION_RATE: '0.10'
+      MIN_PRICE_EUR: '2.00'
+      MAX_PRICE_EUR: '50.00'
+      BASE_RATE_PER_KM: '0.08'
+      PAYMENT_STUB: 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run migrations
+        run: node ace migration:run --force
+
+      - name: Run tests
+        run: node ace test
