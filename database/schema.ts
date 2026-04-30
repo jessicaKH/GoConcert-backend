@@ -7,6 +7,33 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class AlertSchema extends BaseModel {
+  static $columns = ['createdAt', 'direction', 'eventId', 'id', 'isActive', 'originLat', 'originLng', 'radiusKm', 'triggeredAt', 'updatedAt', 'userId'] as const
+  $columns = AlertSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare direction: string
+  @column()
+  declare eventId: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare isActive: boolean
+  @column()
+  declare originLat: number
+  @column()
+  declare originLng: number
+  @column()
+  declare radiusKm: number
+  @column.dateTime()
+  declare triggeredAt: DateTime | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
 export class AuthAccessTokenSchema extends BaseModel {
   static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
   $columns = AuthAccessTokenSchema.$columns
@@ -25,26 +52,229 @@ export class AuthAccessTokenSchema extends BaseModel {
   @column()
   declare name: string | null
   @column()
-  declare tokenableId: number
+  declare tokenableId: string
   @column()
   declare type: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
 
-export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
-  $columns = UserSchema.$columns
+export class BookingSchema extends BaseModel {
+  static $columns = ['cancelReason', 'cancelledAt', 'cancelledBy', 'commission', 'createdAt', 'id', 'passengerId', 'paymentIntentId', 'paymentStatus', 'rideId', 'seatsBooked', 'status', 'totalPrice', 'updatedAt'] as const
+  $columns = BookingSchema.$columns
+  @column()
+  declare cancelReason: string | null
+  @column.dateTime()
+  declare cancelledAt: DateTime | null
+  @column()
+  declare cancelledBy: string | null
+  @column()
+  declare commission: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare passengerId: string
+  @column()
+  declare paymentIntentId: string | null
+  @column()
+  declare paymentStatus: string
+  @column()
+  declare rideId: string
+  @column()
+  declare seatsBooked: number
+  @column()
+  declare status: string
+  @column()
+  declare totalPrice: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class EventSchema extends BaseModel {
+  static $columns = ['cachedAt', 'city', 'country', 'genre', 'id', 'imageUrl', 'latitude', 'longitude', 'name', 'startsAt', 'ticketmasterId', 'url', 'venueAddress', 'venueName'] as const
+  $columns = EventSchema.$columns
+  @column.dateTime()
+  declare cachedAt: DateTime
+  @column()
+  declare city: string
+  @column()
+  declare country: string
+  @column()
+  declare genre: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare imageUrl: string | null
+  @column()
+  declare latitude: number
+  @column()
+  declare longitude: number
+  @column()
+  declare name: string
+  @column.dateTime()
+  declare startsAt: DateTime
+  @column()
+  declare ticketmasterId: string
+  @column()
+  declare url: string | null
+  @column()
+  declare venueAddress: string
+  @column()
+  declare venueName: string
+}
+
+export class OtpCodeSchema extends BaseModel {
+  static $columns = ['code', 'createdAt', 'expiresAt', 'id', 'phone', 'usedAt'] as const
+  $columns = OtpCodeSchema.$columns
+  @column()
+  declare code: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare phone: string
+  @column.dateTime()
+  declare usedAt: DateTime | null
+}
+
+export class RefreshTokenSchema extends BaseModel {
+  static $columns = ['createdAt', 'expiresAt', 'id', 'token', 'userId'] as const
+  $columns = RefreshTokenSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare token: string
+  @column()
+  declare userId: string
+}
+
+export class ReviewSchema extends BaseModel {
+  static $columns = ['authorId', 'bookingId', 'comment', 'createdAt', 'id', 'rating', 'role', 'targetId'] as const
+  $columns = ReviewSchema.$columns
+  @column()
+  declare authorId: string
+  @column()
+  declare bookingId: string
+  @column()
+  declare comment: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare rating: number
+  @column()
+  declare role: string
+  @column()
+  declare targetId: string
+}
+
+export class RideSchema extends BaseModel {
+  static $columns = ['availableSeats', 'constraints', 'createdAt', 'departureAddress', 'departureLat', 'departureLng', 'departureLocation', 'departureTime', 'direction', 'driverId', 'estimatedArrival', 'eventId', 'id', 'maxPrice', 'minPrice', 'notes', 'pricePerSeat', 'status', 'totalSeats', 'updatedAt'] as const
+  $columns = RideSchema.$columns
+  @column()
+  declare availableSeats: number
+  @column()
+  declare constraints: any
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
-  declare email: string
+  declare departureAddress: string
   @column()
-  declare fullName: string | null
+  declare departureLat: number
+  @column()
+  declare departureLng: number
+  @column()
+  declare departureLocation: any | null
+  @column.dateTime()
+  declare departureTime: DateTime
+  @column()
+  declare direction: string
+  @column()
+  declare driverId: string
+  @column.dateTime()
+  declare estimatedArrival: DateTime | null
+  @column()
+  declare eventId: string
   @column({ isPrimary: true })
-  declare id: number
-  @column({ serializeAs: null })
-  declare password: string
+  declare id: string
+  @column()
+  declare maxPrice: number
+  @column()
+  declare minPrice: number
+  @column()
+  declare notes: string | null
+  @column()
+  declare pricePerSeat: number
+  @column()
+  declare status: string
+  @column()
+  declare totalSeats: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class SpatialRefSySchema extends BaseModel {
+  static $columns = ['authName', 'authSrid', 'proj4Text', 'srid', 'srtext'] as const
+  $columns = SpatialRefSySchema.$columns
+  @column()
+  declare authName: string | null
+  @column()
+  declare authSrid: number | null
+  @column()
+  declare proj4Text: string | null
+  @column({ isPrimary: true })
+  declare srid: number
+  @column()
+  declare srtext: string | null
+}
+
+export class UserSchema extends BaseModel {
+  static $columns = ['authProvider', 'avatarUrl', 'bio', 'birthDate', 'carModel', 'createdAt', 'email', 'fullName', 'id', 'phone', 'platform', 'providerId', 'pushToken', 'ratingAsDriver', 'ratingAsPassenger', 'ridesAsDriverCount', 'ridesAsPassengerCount', 'updatedAt'] as const
+  $columns = UserSchema.$columns
+  @column()
+  declare authProvider: string
+  @column()
+  declare avatarUrl: string | null
+  @column()
+  declare bio: string | null
+  @column.dateTime()
+  declare birthDate: DateTime | null
+  @column()
+  declare carModel: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare email: string | null
+  @column()
+  declare fullName: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare phone: string | null
+  @column()
+  declare platform: string | null
+  @column()
+  declare providerId: string
+  @column()
+  declare pushToken: string | null
+  @column()
+  declare ratingAsDriver: number | null
+  @column()
+  declare ratingAsPassenger: number | null
+  @column()
+  declare ridesAsDriverCount: number | null
+  @column()
+  declare ridesAsPassengerCount: number | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

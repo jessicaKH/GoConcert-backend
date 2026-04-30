@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: goconcert
       POSTGRES_USER: goconcert
-      POSTGRES_PASSWORD: goconcert_secret
+      POSTGRES_PASSWORD: goconcert
     ports:
       - "5432:5432"
     volumes:

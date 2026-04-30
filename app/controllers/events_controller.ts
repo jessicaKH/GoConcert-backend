@@ -21,7 +21,7 @@ function mapSearchItemToDto(item: TmSearchItemDto): Partial<EventResponseDto> {
     latitude: null,
     longitude: null,
     startsAt: item.startDate,
-    imageUrl: item.urlImage ? `https://www.ticketmaster.fr${item.urlImage}` : null,
+    imageUrl: item.urlImage ? `https://www.ticketmaster.fr/${item.urlImage}` : null,
     genre: item.genre,
     url: null,
     ridesCount: 0,
@@ -40,7 +40,7 @@ function mapBestSellerToDto(item: TmBestSellerDto): Partial<EventResponseDto> {
     latitude: null,
     longitude: null,
     startsAt: item.debManif,
-    imageUrl: item.image ? `https://www.ticketmaster.fr${item.image}` : null,
+    imageUrl: item.image ? `https://www.ticketmaster.fr/${item.image}` : null,
     genre: null,
     url: null,
     ridesCount: 0,
@@ -170,7 +170,7 @@ export default class EventsController {
         latitude: coord?.lat ?? 0,
         longitude: coord?.lng ?? 0,
         startsAt: DateTime.fromISO(detail.startDate),
-        imageUrl: detail.urlImage ? `https://www.ticketmaster.fr${detail.urlImage}` : null,
+        imageUrl: detail.urlImage ? `https://www.ticketmaster.fr/${detail.urlImage}` : null,
         url: `https://www.ticketmaster.fr/manifestation/${detail.idmanif}`,
       })
     }
